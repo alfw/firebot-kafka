@@ -1,11 +1,4 @@
 module.exports = {
-	branches: [
-		"main",
-		{
-			name: "beta",
-			prerelease: true
-		}
-	],
 	plugins: [
 		// additional config...
 		"@semantic-release/release-notes-generator",
