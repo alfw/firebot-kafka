@@ -1,6 +1,10 @@
 import { Firebot } from "@crowbartools/firebot-custom-scripts-types";
-import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
-import { Kafka, logLevel } from "kafkajs";
+import { initLogger } from "./logger";
+import { initKafka } from "./kafka";
+import { KafkaEvent } from "./events/kafka";
+import { KafkaFilter } from "./filters/kafkaFilter";
+import { KafkaDataReplace } from "./replaceVariables/kafkaData";
+import { processTopicInput } from "./utils";
 
 interface Params {
 	topic: string;
@@ -51,128 +55,27 @@ const script: Firebot.CustomScript<Params> = {
 		const { logger, eventManager, replaceVariableManager, eventFilterManager, frontendCommunicator } =
 			runRequest.modules;
 
-		const kafka = new Kafka({
-			brokers: [runRequest.parameters.broker],
-			ssl: true,
-			sasl: {
-				mechanism: "scram-sha-256",
-				username: runRequest.parameters.username,
-				password: runRequest.parameters.password
-			},
-			logLevel: logLevel.ERROR
-		});
-
-		const consumer = kafka.consumer({ groupId: "YOUR_CONSUMER_GROUP" });
-		await consumer.connect();
-
+		initLogger(logger);
 		let topics = processTopicInput(runRequest.parameters.topic);
 
-		topics.forEach(async (v) => {
-			await consumer.subscribe({ topic: v, fromBeginning: true });
+		initKafka({
+			broker: runRequest.parameters.broker,
+			password: runRequest.parameters.password,
+			topics,
+			username: runRequest.parameters.username,
+			eventManager
 		});
 
-		await consumer.run({
-			eachMessage: async ({ topic, partition, message }) => {
-				logger.info("Each", {
-					value: JSON.parse(message.value.toString())
-				});
-				eventManager.triggerEvent("KAFKA_ID", "KAFKA_ID_TEST", {
-					topic,
-					...JSON.parse(message.value.toString())
-				});
-			}
-		});
+		eventManager.registerEventSource(KafkaEvent);
 
-		eventManager.registerEventSource({
-			id: "KAFKA_ID",
-			name: "Kafka",
-			events: [
-				{
-					id: "KAFKA_ID_TEST",
-					name: "Kafka Event",
-					description: "Kafka topic event",
-					manualMetadata: {}
-				}
-			]
-		});
+		replaceVariableManager.registerReplaceVariable(KafkaDataReplace);
 
-		replaceVariableManager.registerReplaceVariable({
-			definition: {
-				handle: "kafkadata",
-				description: "Object of kafka",
-				triggers: {
-					event: ["KAFKA_ID:KAFKA_ID_TEST"]
-				},
-				examples: [
-					{
-						description: "Get the topic",
-						usage: "topic"
-					}
-				],
-				possibleDataOutput: ["text"]
-			},
-			evaluator: function (trigger: Effects.Trigger, ...args: string[]) {
-				return getValueByPath(trigger.metadata.eventData, args[0]);
-			}
-		});
-
-		eventFilterManager.registerFilter({
-			id: "KAFKA_ID:filter",
-			name: "Id filter",
-			description: "Filter based on id",
-			events: [
-				{
-					eventSourceId: "KAFKA_ID",
-					eventId: "KAFKA_ID_TEST"
-				}
-			],
-			comparisonTypes: ["is", "is not"],
-			valueType: "preset",
-			predicate: async (filterSettings, eventData) => {
-				const { comparisonType, value } = filterSettings;
-				const { eventMeta } = eventData;
-
-				switch (comparisonType) {
-					case "is":
-						return eventMeta.topic === value;
-					case "is not":
-						return eventMeta.topic !== value;
-					default:
-						return false;
-				}
-			},
-			presetValues: (backendCommunicator, $q) => {
-				return $q.when(
-					backendCommunicator.fireEventAsync("get-kafka-topics").then((data: string[]) => {
-						return data.map((s) => {
-							return {
-								value: s,
-								display: s
-							};
-						});
-					})
-				);
-			}
-		});
+		eventFilterManager.registerFilter(KafkaFilter);
 
 		frontendCommunicator.onAsync<never, string[]>("get-kafka-topics", async () => {
 			return topics;
 		});
 	}
 };
-
-function getValueByPath(obj: any, path: string) {
-	return path.split(".").reduce((acc, part) => acc && acc[part], obj);
-}
-
-function processTopicInput(topicInput: string) {
-	const trimmedInput = topicInput.replace(/\s+/g, "");
-
-	if (trimmedInput.includes(",")) {
-		return trimmedInput.split(",");
-	} else {
-		return [trimmedInput];
-	}
-}
 
 export default script;
