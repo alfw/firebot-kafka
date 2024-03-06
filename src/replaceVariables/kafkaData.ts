@@ -5,7 +5,7 @@ import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effect
 export const KafkaDataReplace: ReplaceVariable = {
 	definition: {
 		handle: "kafkadata",
-		description: "Object of kafka",
+		description: "Get data from the kafka event.",
 		triggers: {
 			event: ["KAFKA_ID:KAFKA_ID_TEST"]
 		},

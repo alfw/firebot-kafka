@@ -7,7 +7,7 @@ type EventFilterExtended = EventFilter & {
 export const KafkaFilter: EventFilterExtended = {
 	id: "KAFKA_ID:filter",
 	name: "Topic",
-	description: "Filter based on id",
+	description: "Filter based on topic",
 	events: [
 		{
 			eventSourceId: "KAFKA_ID",
@@ -29,7 +29,6 @@ export const KafkaFilter: EventFilterExtended = {
 		);
 	},
 	getSelectedValueDisplay: (filterSettings) => {
-		console.log("filterSettings", filterSettings);
 		const capitalize = ([first, ...rest]: string[]) => first.toUpperCase() + rest.join("").toLowerCase();
 
 		if (filterSettings.value == null) {
