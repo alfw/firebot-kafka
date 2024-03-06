@@ -29,5 +29,10 @@
 	},
 	"dependencies": {
 		"kafkajs": "^2.2.4"
+	},
+	"release": {
+		"branches": [
+			"main"
+		]
 	}
 }
