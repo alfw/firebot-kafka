@@ -1,8 +1,12 @@
 import { EventFilter } from "@crowbartools/firebot-custom-scripts-types/types/modules/event-filter-manager";
 
-export const KafkaFilter: EventFilter = {
+type EventFilterExtended = EventFilter & {
+	getSelectedValueDisplay(filterSettings: any): string;
+};
+
+export const KafkaFilter: EventFilterExtended = {
 	id: "KAFKA_ID:filter",
-	name: "Id filter",
+	name: "Topic",
 	description: "Filter based on id",
 	events: [
 		{
@@ -12,6 +16,28 @@ export const KafkaFilter: EventFilter = {
 	],
 	comparisonTypes: ["is", "is not"],
 	valueType: "preset",
+	presetValues: (backendCommunicator, $q) => {
+		return $q.when(
+			backendCommunicator.fireEventAsync("get-kafka-topics").then((data: string[]) => {
+				return data.map((s) => {
+					return {
+						value: s,
+						display: s
+					};
+				});
+			})
+		);
+	},
+	getSelectedValueDisplay: (filterSettings) => {
+		console.log("filterSettings", filterSettings);
+		const capitalize = ([first, ...rest]: string[]) => first.toUpperCase() + rest.join("").toLowerCase();
+
+		if (filterSettings.value == null) {
+			return "[Not set]";
+		}
+
+		return capitalize(filterSettings.value);
+	},
 	predicate: async (filterSettings, eventData) => {
 		const { comparisonType, value } = filterSettings;
 		const { eventMeta } = eventData;
@@ -24,17 +50,5 @@ export const KafkaFilter: EventFilter = {
 			default:
 				return false;
 		}
-	},
-	presetValues: (backendCommunicator, $q) => {
-		return $q.when(
-			backendCommunicator.fireEventAsync("get-kafka-topics").then((data: string[]) => {
-				return data.map((s) => {
-					return {
-						value: s,
-						display: s
-					};
-				});
-			})
-		);
 	}
 };
