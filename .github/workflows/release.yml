@@ -27,7 +27,7 @@ jobs:
          - name: Build
            run: npm run build --if-present
            env:
-              VER: ${{ steps.semantic.outputs.version }
+              VER: ${{ steps.semantic.outputs.version }}
          - name: Release
            env:
               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
