@@ -6,6 +6,8 @@ import { KafkaFilter } from "./filters/kafkaFilter";
 import { KafkaDataReplace } from "./replaceVariables/kafkaData";
 import { processTopicInput } from "./utils";
 
+declare const VERSION: string;
+
 interface Params {
 	topic: string;
 	username: string;
@@ -19,7 +21,7 @@ const script: Firebot.CustomScript<Params> = {
 			name: "Kafka Consumer",
 			description: "A Kafka consumer script",
 			author: "Alfw",
-			version: "1.0",
+			version: VERSION,
 			firebotVersion: "5"
 		};
 	},
