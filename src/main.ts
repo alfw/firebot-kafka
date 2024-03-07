@@ -21,7 +21,7 @@ const script: Firebot.CustomScript<Params> = {
 			name: "Kafka Consumer",
 			description: "A Kafka consumer script",
 			author: "Alfw",
-			version: `${VERSION}`,
+			version: `VERSION`,
 			firebotVersion: "5"
 		};
 	},
