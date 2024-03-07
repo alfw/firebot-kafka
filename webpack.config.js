@@ -12,7 +12,7 @@ module.exports = {
 	},
 	plugins: [
 		new webpack.DefinePlugin({
-			VERSION: process.env.VER
+			VERSION: JSON.stringify(process.env.VER)
 		})
 	],
 	output: {
