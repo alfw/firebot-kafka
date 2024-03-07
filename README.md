@@ -1,5 +1,7 @@
 # Starter Firebot Custom Script in Typescript
 
+TODO: Do this
+
 ### Setup
 
 1. Create a new repo based off this template (Click "Use this Template" above) or simply fork it

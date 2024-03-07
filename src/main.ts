@@ -47,7 +47,7 @@ const script: Firebot.CustomScript<Params> = {
 			},
 			broker: {
 				type: "string",
-				default: "Hello World!",
+				default: "",
 				description: "Broker",
 				secondaryDescription: "Enter broker URL + port ( url.com:9092)"
 			}
