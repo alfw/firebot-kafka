@@ -1,17 +1,18 @@
 import { EventFilter } from "@crowbartools/firebot-custom-scripts-types/types/modules/event-filter-manager";
+import { KAFKA_EVENT, KAFKA_SOURCE } from "../constants";
 
 type EventFilterExtended = EventFilter & {
 	getSelectedValueDisplay(filterSettings: any): string;
 };
 
 export const KafkaFilter: EventFilterExtended = {
-	id: "KAFKA_ID:filter",
+	id: `${KAFKA_SOURCE}:filter`,
 	name: "Topic",
 	description: "Filter based on topic",
 	events: [
 		{
-			eventSourceId: "KAFKA_ID",
-			eventId: "KAFKA_ID_TEST"
+			eventSourceId: KAFKA_SOURCE,
+			eventId: KAFKA_EVENT
 		}
 	],
 	comparisonTypes: ["is", "is not"],

@@ -1,6 +1,7 @@
 import { Kafka, logLevel } from "kafkajs";
 import { logger } from "./logger";
 import { EventManager } from "@crowbartools/firebot-custom-scripts-types/types/modules/event-manager";
+import { KAFKA_EVENT, KAFKA_SOURCE } from "./constants";
 
 type InitKafka = {
 	broker: string;
@@ -37,7 +38,7 @@ export async function initKafka(config: InitKafka) {
 			logger.info("Each", {
 				value: JSON.parse(message.value.toString())
 			});
-			config.eventManager.triggerEvent("KAFKA_ID", "KAFKA_ID_TEST", {
+			config.eventManager.triggerEvent(KAFKA_SOURCE, KAFKA_EVENT, {
 				topic,
 				...JSON.parse(message.value.toString())
 			});
