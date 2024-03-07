@@ -1,7 +1,7 @@
 import { ReplaceVariable } from "@crowbartools/firebot-custom-scripts-types/types/modules/replace-variable-manager";
 import { getValueByPath } from "../utils";
 import { Effects } from "@crowbartools/firebot-custom-scripts-types/types/effects";
-import { KAFKA_SOURCE } from "../constants";
+import { KAFKA_EVENT, KAFKA_SOURCE } from "../constants";
 
 export const KafkaDataReplace: ReplaceVariable = {
 	definition: {
